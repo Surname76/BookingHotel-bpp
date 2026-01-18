@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "tailwindcss";
+
+/* Optional: Custom styles */
+.bg-accent {
+    background-color: #4f46e5; /* contoh ungu, bisa diganti sesuai theme */
+}
+.text-accent {
+    color: #4f46e5;
+}
