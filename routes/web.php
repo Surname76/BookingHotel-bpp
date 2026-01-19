@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Room;
 use App\Livewire\Rooms\Show;
 use App\Livewire\Admin\BookingRequestList;
+use App\Livewire\Admin\Dashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,10 +20,10 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| DETAIL HOTEL
+| DETAIL HOTEL (LIVEWIRE)
 |--------------------------------------------------------------------------
 */
-Route::get('/rooms/{id}', Show::class)
+Route::get('/rooms/{room}', Show::class)
     ->name('hotels.show');
 
 /*
@@ -67,17 +68,23 @@ Route::post('/admin/logout', function () {
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN AREA
+| ADMIN AREA (FULL LIVEWIRE)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->group(function () {
 
-        Route::get('/dashboard', function () {
-            return view('layouts.app', ['slot' => view('livewire.admin.dashboard')]);
-        })->name('admin.dashboard');
+        Route::get('/dashboard', Dashboard::class)
+            ->name('admin.dashboard');
 
         Route::get('/booking-requests', BookingRequestList::class)
             ->name('admin.booking-requests');
     });
+
+Route::prefix('admin')->group(function (): void {
+    Route::fallback(function () {
+        return redirect('/')
+            ->with('error', 'Alamat admin yang Anda tuju tidak terdaftar');
+    });
+});

@@ -11,9 +11,9 @@ class Show extends Component
 {
     public Room $room;
 
-    public function mount($id)
+    public function mount(Room $room)
     {
-        $this->room = Room::findOrFail($id);
+        $this->room = $room;
     }
 
     public function render()

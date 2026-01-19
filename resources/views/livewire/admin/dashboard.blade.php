@@ -1,6 +1,3 @@
-@extends('layouts.app')
-
-@section('content')
 <div class="max-w-7xl mx-auto px-6 py-12">
     <h1 class="text-2xl font-bold mb-4">Admin Dashboard</h1>
 
@@ -25,4 +22,3 @@
         </button>
     </form>
 </div>
-@endsection

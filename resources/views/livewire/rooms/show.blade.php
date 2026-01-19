@@ -2,11 +2,8 @@
 
     {{-- ================= HERO HOTEL ================= --}}
     <section class="relative h-[60vh] bg-black">
-        <img
-            src="{{ $room->image_url ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&fit=crop' }}"
-            alt="{{ $room->name }}"
-            class="w-full h-full object-cover opacity-80"
-        />
+        <img src="{{ $room->image_url ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&fit=crop' }}"
+            alt="{{ $room->name }}" class="w-full h-full object-cover opacity-80" />
 
         <div class="absolute inset-0 flex items-end">
             <div class="max-w-7xl mx-auto px-6 pb-10 text-white">
@@ -79,11 +76,8 @@
 
                 <div class="grid grid-cols-3 gap-3">
                     @for ($i = 0; $i < 3; $i++)
-                        <img
-                            src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&fit=crop"
-                            class="rounded-lg object-cover h-32 w-full"
-                            alt="Galeri hotel"
-                        />
+                        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&fit=crop"
+                            class="rounded-lg object-cover h-32 w-full" alt="Galeri hotel" />
                     @endfor
                 </div>
             </div>
@@ -98,8 +92,7 @@
             </p>
 
             {{-- BUTTON OPEN MODAL --}}
-            <a
-                href="#availability-modal"
+            <a href="#availability-modal"
                 class="mt-4 block text-center bg-accent text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
                 Lihat Kamar Tersedia
             </a>
@@ -108,15 +101,13 @@
     </section>
 
     {{-- ================= MODAL KETERSEDIAAN ================= --}}
-    <div id="availability-modal"
-         class="fixed inset-0 bg-black/50 z-50 hidden target:block">
+    <div id="availability-modal" class="fixed inset-0 bg-black/50 z-50 hidden target:block">
 
         <div class="min-h-screen flex items-center justify-center px-4">
             <div class="bg-white rounded-xl max-w-md w-full p-6 relative">
 
                 {{-- CLOSE --}}
-                <a href="#"
-                   class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-600">
+                <a href="#" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-600">
                     ✕
                 </a>
 

@@ -8,6 +8,12 @@
     @livewireStyles
 </head>
 
+@if (session('error'))
+    <script>
+        alert("{{ session('error') }}");
+    </script>
+@endif
+
 <body class="bg-neutral-50 text-neutral-900">
 
 <header class="bg-white border-b sticky top-0 z-50">
@@ -33,9 +39,8 @@
 </header>
 
 <main class="min-h-screen">
-    @yield('content')
+    {{ $slot }}
 </main>
-
 
 <footer class="bg-white border-t mt-20">
     <div class="max-w-7xl mx-auto px-6 py-6 text-sm text-neutral-500 flex justify-between">
