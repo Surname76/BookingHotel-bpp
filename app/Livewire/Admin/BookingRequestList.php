@@ -4,11 +4,16 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use Livewire\Attributes\Layout;
+use Livewire\WithPagination;
 use App\Models\BookingRequest;
 
 #[Layout('layouts.app')]
 class BookingRequestList extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'tailwind';
+
     public $selectedRequest = null;
     public $adminNote = '';
 
@@ -41,7 +46,7 @@ class BookingRequestList extends Component
         return view('livewire.admin.booking-request-list', [
             'requests' => BookingRequest::with(['room', 'roomType'])
                 ->latest()
-                ->get(),
+                ->paginate(10), // 👈 JUMLAH PER HALAMAN
         ]);
     }
 }

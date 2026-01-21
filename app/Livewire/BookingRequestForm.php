@@ -6,12 +6,14 @@ use Livewire\Component;
 use App\Models\BookingRequest;
 use App\Models\Room;
 use App\Models\RoomType;
+use App\Models\User;
+use App\Notifications\NewBookingNotification;
 
 class BookingRequestForm extends Component
 {
     public Room $room;
 
-    public $step = 'select'; // select | benefit | form
+    public $step = 'select';
     public $selectedType;
 
     public $room_type_id;
@@ -21,6 +23,11 @@ class BookingRequestForm extends Component
     public $check_in;
     public $check_out;
     public $special_request;
+
+    public function mount(Room $room)
+    {
+        $this->room = $room;
+    }
 
     public function chooseType($typeId)
     {
@@ -36,11 +43,7 @@ class BookingRequestForm extends Component
 
     public function back()
     {
-        if ($this->step === 'form') {
-            $this->step = 'benefit';
-        } else {
-            $this->step = 'select';
-        }
+        $this->step = $this->step === 'form' ? 'benefit' : 'select';
     }
 
     public function submit()
@@ -53,7 +56,7 @@ class BookingRequestForm extends Component
             'check_out'    => 'required|date|after:check_in',
         ]);
 
-        BookingRequest::create([
+        $booking = BookingRequest::create([
             'room_id'         => $this->room->id,
             'room_type_id'    => $this->room_type_id,
             'guest_name'      => $this->guest_name,
@@ -65,9 +68,14 @@ class BookingRequestForm extends Component
             'status'          => 'pending',
         ]);
 
+        User::where('is_admin', true)
+            ->each(fn ($admin) => $admin->notify(
+                new NewBookingNotification($booking)
+            ));
+
         session()->flash(
             'message',
-            'Permintaan booking Anda telah dikirim ke pihak hotel. Kami akan menghubungi Anda setelah mendapat konfirmasi.'
+            'Permintaan booking Anda telah dikirim ke pihak hotel.'
         );
 
         $this->reset([

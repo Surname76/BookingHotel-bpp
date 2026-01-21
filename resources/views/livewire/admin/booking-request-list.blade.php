@@ -32,8 +32,7 @@
                             <td>{{ $request->roomType->name }}</td>
                             <td class="capitalize">{{ $request->status }}</td>
                             <td class="text-right">
-                                <button
-                                    wire:click="select({{ $request->id }})"
+                                <button wire:click="select({{ $request->id }})"
                                     class="text-accent text-sm hover:underline">
                                     Lihat
                                 </button>
@@ -42,6 +41,11 @@
                     @endforeach
                 </tbody>
             </table>
+
+            {{-- PAGINATION (INI POSISI YANG BENAR) --}}
+            <div class="mt-6">
+                {{ $requests->links() }}
+            </div>
         </div>
 
         {{-- RIGHT: DETAIL --}}
@@ -65,21 +69,16 @@
                 {{-- ADMIN NOTE --}}
                 <div class="mb-4">
                     <label class="text-sm font-medium">Catatan Admin</label>
-                    <textarea
-                        wire:model.defer="adminNote"
-                        rows="3"
-                        class="w-full border rounded-lg px-3 py-2 text-sm"></textarea>
+                    <textarea wire:model.defer="adminNote" rows="3" class="w-full border rounded-lg px-3 py-2 text-sm"></textarea>
                 </div>
 
                 <div class="flex gap-2">
-                    <button
-                        wire:click="updateStatus('sent')"
+                    <button wire:click="updateStatus('sent')"
                         class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm">
                         Kirim ke Hotel
                     </button>
 
-                    <button
-                        wire:click="updateStatus('rejected')"
+                    <button wire:click="updateStatus('rejected')"
                         class="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm">
                         Tolak
                     </button>
