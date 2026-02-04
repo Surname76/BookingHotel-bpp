@@ -210,16 +210,14 @@
                                         <input type="text" wire:model.defer="name"
                                             class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-4 focus:ring-blue-500/10 transition-all placeholder-slate-400"
                                             placeholder="Contoh: Hotel Grand Wisata">
-                                        @error('name')
-                                            <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                                        @enderror
+                                        @error('name') <span class="text-rose-500 text-[10px] font-bold mt-1 ml-2 block uppercase tracking-wider">{{ $message }}</span> @enderror
                                     </div>
 
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Distrik / Wilayah</label>
                                             <select wire:model.defer="district"
-                                                class="w-full rounded-lg border border-slate-300 shadow-sm text-sm focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 transition-all py-2.5 pl-3 pr-10 appearance-none bg-white">
+                                                class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none">
                                                 <option value="">Pilih Distrik</option>
                                                 @foreach ($districts as $dist)
                                                     <option value="{{ $dist }}">{{ $dist }}</option>
@@ -235,23 +233,14 @@
                                                     placeholder="0">
                                             </div>
                                         </div>
-                                        @error('district')
-                                            <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                                        @enderror
                                     </div>
 
-                                    <div class="md:col-span-2">
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">
-                                            Link Google Maps
-                                        </label>
+                                    <div>
+                                        <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Link Google Maps (Iframe/URL)</label>
                                         <input type="url" wire:model.defer="map_link"
-                                            class="w-full rounded-lg border border-slate-300 shadow-sm text-sm focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 transition-all py-2.5"
-                                            placeholder="https://maps.app.goo.gl/...">
-                                        @error('map_link')
-                                            <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                                        @enderror
+                                            class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                            placeholder="https://maps.google.com/...">
                                     </div>
-
 
                                     <div>
                                         <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Thumbnail Gambar (URL)</label>

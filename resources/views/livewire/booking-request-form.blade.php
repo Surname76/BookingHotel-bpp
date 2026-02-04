@@ -1,27 +1,30 @@
-<div class="p-6 bg-white rounded-2xl">
-    {{-- ALERT BERHASIL (Menggunakan Alpine.js untuk animasi otomatis hilang) --}}
+<div class="space-y-6">
     @if (session()->has('message'))
-        <div x-data="{ show: true }" 
-             x-show="show" 
-             x-init="setTimeout(() => show = false, 5000)"
-             class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl flex items-center justify-between shadow-sm">
+        <div
+            x-data="{ show: true }"
+            x-show="show"
+            x-init="setTimeout(() => show = false, 5000)"
+            class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-700 flex items-center justify-between shadow-sm"
+        >
             <div class="flex items-center gap-3">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <span class="text-sm font-bold">{{ session('message') }}</span>
             </div>
             <button @click="show = false" class="text-emerald-400 hover:text-emerald-600">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2"></path></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 18L18 6M6 6l12 12" stroke-width="2"></path>
+                </svg>
             </button>
         </div>
     @endif
 
-    {{-- ALERT ERROR VALIDASI --}}
     @if ($errors->any())
-        <div class="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl">
-            <p class="text-xs font-bold uppercase tracking-wider mb-2">Mohon lengkapi data:</p>
-            <ul class="list-disc list-inside text-sm">
+        <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-700">
+            <p class="text-xs font-bold uppercase tracking-wider mb-2">Mohon periksa data berikut:</p>
+            <ul class="list-disc list-inside text-sm space-y-0.5">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -29,92 +32,197 @@
         </div>
     @endif
 
-    {{-- STEP 1: PILIH KELAS --}}
-    @if ($step === 'select')
-    <h2 class="text-xl font-bold text-slate-900 mb-6 tracking-tight">Pilih Kelas Kamar</h2>
-    <div class="space-y-4">
-        @foreach ($roomTypes as $type)
-        <div class="group border border-slate-200 rounded-2xl p-5 flex justify-between items-center hover:border-indigo-600 transition-all">
-            <div>
-                <h3 class="font-bold text-slate-800 text-lg group-hover:text-indigo-600 transition-colors">{{ $type->name }}</h3>
-                <p class="text-sm text-slate-500">{{ $type->description }}</p>
-                <p class="font-black text-indigo-600 mt-2">
-                    Rp {{ number_format($type->price_per_night, 0, ',', '.') }} <span class="text-xs text-slate-400 font-normal">/ malam</span>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {{-- KOLOM KIRI: RINGKASAN --}}
+        <div class="lg:col-span-4 space-y-4 order-2 lg:order-1">
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Ringkasan Pesanan</p>
+
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center text-sm gap-4">
+                        <span class="text-slate-500 shrink-0">Hotel</span>
+                        <span class="font-bold text-slate-900 text-right truncate">{{ $room->hotel?->name ?? '-' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm gap-4">
+                        <span class="text-slate-500 shrink-0">Kamar</span>
+                        <span class="font-bold text-slate-900 text-right truncate">{{ $room->name }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm gap-4">
+                        <span class="text-slate-500 shrink-0">Harga / malam</span>
+                        <span class="font-bold text-slate-900">
+                            Rp {{ number_format((float) $room->price_per_night, 0, ',', '.') }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm gap-4">
+                        <span class="text-slate-500 shrink-0">Durasi</span>
+                        <span class="font-bold text-slate-900">
+                            {{ $totalNights ? $totalNights.' malam' : '-' }}
+                        </span>
+                    </div>
+                    <div class="pt-4 border-t border-dashed border-slate-300 flex justify-between items-center gap-4">
+                        <span class="text-sm font-black text-slate-900 uppercase">Total</span>
+                        <span class="text-xl font-black text-blue-600 text-right">
+                            {{ $estimatedAmount ? 'Rp '.number_format((float) $estimatedAmount, 0, ',', '.') : '-' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                <p class="text-xs font-bold text-slate-900">Info</p>
+                <p class="text-xs text-slate-600 mt-1">
+                    Total di atas adalah estimasi berdasarkan tanggal menginap dan harga per malam.
                 </p>
             </div>
-            <button type="button" wire:click="chooseType({{ $type->id }})"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 transition-all active:scale-95">
-                Pilih
-            </button>
         </div>
-        @endforeach
+
+        {{-- KOLOM KANAN: FORM --}}
+        <div class="lg:col-span-8 order-1 lg:order-2">
+            @guest
+                <div class="rounded-2xl border border-amber-100 bg-amber-50 p-6 text-amber-800">
+                    <p class="text-sm font-extrabold">Silakan login untuk melanjutkan booking request.</p>
+                    <p class="text-xs mt-1 text-amber-700">Setelah login, isi data tamu dan tanggal menginap.</p>
+                    <div class="mt-4 flex flex-wrap items-center gap-3 text-sm font-semibold">
+                        <a href="{{ route('login') }}" class="text-blue-700 hover:text-blue-800 underline">Login</a>
+                        <span class="text-amber-300">|</span>
+                        <a href="{{ route('register') }}" class="text-slate-700 hover:text-slate-900 underline">Daftar</a>
+                    </div>
+                </div>
+            @endguest
+
+            @auth
+                <form wire:submit.prevent="submit" class="space-y-6">
+                    <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                        <h4 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">Data Tamu</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Nama Lengkap</label>
+                                <input
+                                    type="text"
+                                    wire:model.defer="guest_name"
+                                    autocomplete="name"
+                                    class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+                                >
+                                @error('guest_name')
+                                    <p class="mt-1 text-[10px] font-bold text-rose-600 ml-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Email</label>
+                                <input
+                                    type="email"
+                                    wire:model.defer="guest_email"
+                                    autocomplete="email"
+                                    class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+                                >
+                                @error('guest_email')
+                                    <p class="mt-1 text-[10px] font-bold text-rose-600 ml-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">No. WhatsApp (opsional)</label>
+                                <input
+                                    type="tel"
+                                    wire:model.defer="guest_phone"
+                                    autocomplete="tel"
+                                    class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+                                >
+                                @error('guest_phone')
+                                    <p class="mt-1 text-[10px] font-bold text-rose-600 ml-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                        <h4 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">Jadwal</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="col-span-1">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Check-in</label>
+                                <input
+                                    type="date"
+                                    wire:model.live="check_in"
+                                    class="w-full rounded-xl border-slate-200 bg-slate-50 p-2 text-xs font-bold outline-none focus:ring-4 focus:ring-blue-600/5"
+                                >
+                                @error('check_in')
+                                    <p class="mt-1 text-[10px] font-bold text-rose-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="col-span-1">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jam</label>
+                                <input
+                                    type="time"
+                                    wire:model.defer="check_in_time"
+                                    class="w-full rounded-xl border-slate-200 bg-slate-50 p-2 text-xs font-bold outline-none focus:ring-4 focus:ring-blue-600/5"
+                                >
+                                @error('check_in_time')
+                                    <p class="mt-1 text-[10px] font-bold text-rose-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="col-span-1">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Check-out</label>
+                                <input
+                                    type="date"
+                                    wire:model.live="check_out"
+                                    class="w-full rounded-xl border-slate-200 bg-slate-50 p-2 text-xs font-bold outline-none focus:ring-4 focus:ring-blue-600/5"
+                                >
+                                @error('check_out')
+                                    <p class="mt-1 text-[10px] font-bold text-rose-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="col-span-1">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jam</label>
+                                <input
+                                    type="time"
+                                    wire:model.defer="check_out_time"
+                                    class="w-full rounded-xl border-slate-200 bg-slate-50 p-2 text-xs font-bold outline-none focus:ring-4 focus:ring-blue-600/5"
+                                >
+                                @error('check_out_time')
+                                    <p class="mt-1 text-[10px] font-bold text-rose-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                        <h4 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">Permintaan Khusus (opsional)</h4>
+                        <textarea
+                            wire:model.defer="special_request"
+                            rows="3"
+                            placeholder="Permintaan khusus..."
+                            class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all"
+                        ></textarea>
+                    </div>
+
+                    <button
+                        type="submit"
+                        wire:loading.attr="disabled"
+                        wire:target="submit"
+                        class="w-full bg-slate-900 hover:bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl transition-all flex items-center justify-center gap-3"
+                    >
+                        <span wire:loading.remove wire:target="submit">Lanjut ke Pembayaran</span>
+                        <span wire:loading wire:target="submit" class="flex items-center gap-2">
+                            <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            Memproses...
+                        </span>
+                    </button>
+
+                    <p class="text-xs text-slate-500 text-center">
+                        Setelah submit, kamu akan diarahkan ke halaman pembayaran Xendit.
+                    </p>
+                </form>
+            @endauth
+        </div>
     </div>
-    @endif
-
-    {{-- STEP 2: BENEFIT --}}
-    @if ($step === 'benefit' && $selectedType)
-    <button type="button" wire:click="back" class="text-xs font-bold text-slate-400 hover:text-indigo-600 mb-4 flex items-center gap-1 uppercase tracking-widest">
-        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="3"></path></svg> 
-        Kembali
-    </button>
-    <h2 class="text-xl font-bold text-slate-900 mb-4">Mengapa memilih {{ $selectedType->name }}?</h2>
-    <ul class="space-y-3 mb-8 bg-slate-50 p-6 rounded-2xl border border-slate-100">
-        @foreach ($selectedType->benefits ?? [] as $benefit)
-        <li class="flex items-center gap-3 text-sm text-slate-700 font-medium">
-            <span class="w-5 h-5 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-[10px]">✔</span>
-            <span>{{ $benefit }}</span>
-        </li>
-        @endforeach
-    </ul>
-    <button type="button" wire:click="proceedToForm" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-bold shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]">
-        Lanjutkan Booking
-    </button>
-    @endif
-
-    {{-- STEP 3: FORM --}}
-    @if ($step === 'form' && $selectedType)
-    <button type="button" wire:click="back" class="text-xs font-bold text-slate-400 hover:text-indigo-600 mb-4 flex items-center gap-1 uppercase tracking-widest">
-        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="3"></path></svg> 
-        Kembali
-    </button>
-    <h2 class="text-xl font-bold text-slate-900 mb-6 uppercase tracking-tight text-center">Booking Request</h2>
-
-    <form wire:submit.prevent="submit" class="space-y-4">
-        <div class="grid grid-cols-1 gap-4">
-            <input type="text" wire:model.defer="guest_name" placeholder="Nama Lengkap" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none">
-            <div class="grid grid-cols-2 gap-4">
-                <input type="email" wire:model.defer="guest_email" placeholder="Email" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none">
-                <input type="text" wire:model.defer="guest_phone" placeholder="No. Telepon" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none">
-            </div>
-            <div class="grid grid-cols-2 gap-4 text-xs font-bold text-slate-400">
-                <div>
-                    <label class="ml-2 mb-1 block uppercase">Check In</label>
-                    <input type="date" wire:model.defer="check_in" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-                <div>
-                    <label class="ml-2 mb-1 block uppercase">Check Out</label>
-                    <input type="date" wire:model.defer="check_out" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-            </div>
-            <textarea wire:model.defer="special_request" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 min-h-[100px] focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ada permintaan khusus? (Opsional)"></textarea>
-        </div>
-
-        <button type="submit" 
-                wire:loading.attr="disabled"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold shadow-xl shadow-blue-100 transition-all flex items-center justify-center gap-2 group overflow-hidden relative">
-            
-            {{-- Teks Normal --}}
-            <span wire:loading.remove wire:target="submit">Kirim Booking Sekarang</span>
-            
-            {{-- Teks Loading --}}
-            <span wire:loading wire:target="submit" class="flex items-center gap-2">
-                <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Memproses...
-            </span>
-        </button>
-    </form>
-    @endif
 </div>

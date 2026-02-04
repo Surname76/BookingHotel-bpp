@@ -1,62 +1,125 @@
-<!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+    <!DOCTYPE html>
+    <html lang="id" class="scroll-smooth">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'BookIn | Hotel Booking' }}</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ $title ?? 'BookIn | Hotel Booking' }}</title>
 
-    @vite(['resources/css/app.css','resources/js/app.js'])
-    @livewireStyles
-</head>
+        @vite(['resources/css/app.css','resources/js/app.js'])
+        @livewireStyles
+    </head>
 
-<body class="bg-neutral-50 text-neutral-900 font-sans antialiased">
+    <body class="bg-neutral-50 text-neutral-900 font-sans antialiased min-h-screen flex flex-col">
+        <livewire:navbar class="mb-10"/>
 
-    {{-- ================= NAVBAR ================= --}}
-    <livewire:navbar />
+        <main class="flex-1">
+            {{ $slot }}
+        </main>
 
-    <main>
-        @yield('content')
-    </main>
+        {{-- CLEAN & PROFESSIONAL FOOTER --}}
+        <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 font-sans">
+            <div class="max-w-7xl mx-auto px-6 pt-16 pb-8">
 
-    {{-- ================= FOOTER ================= --}}
-    <footer class="bg-neutral-900 text-neutral-400 py-12 mt-20">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <span class="text-xl font-black text-white uppercase tracking-tighter">Book<span class="text-blue-500">In</span></span>
-            <p class="mt-4 text-sm">&copy; {{ date('Y') }} Booking Hotel Balikpapan. All rights reserved.</p>
-        </div>
-    </footer>
+                {{-- Top Section: Grid Layout --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-12">
 
-    <nav class="flex gap-6 text-sm text-neutral-600">
-        <a href="/" class="hover:text-accent">Home</a>
-        <a href="/#rooms" class="hover:text-accent">Hotel</a>
+                    {{-- 1. BRAND IDENTITY (Lebar: 4 kolom) --}}
+                    <div class="lg:col-span-4 space-y-4">
+                        <a href="/" class="flex items-center gap-2.5 font-bold text-xl text-white">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-white shadow-lg shadow-blue-900/50">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                </svg>
+                            </div>
+                            <span>BookingHotel</span>
+                        </a>
+                        <p class="text-sm leading-relaxed text-slate-500 max-w-xs">
+                            Mitra perjalanan terbaik Anda di Kalimantan Timur. Booking mudah, harga transparan, liburan tenang.
+                        </p>
+                    </div>
 
-        @auth
-        @if(auth()->user()->is_admin)
-        <a href="/admin/dashboard" class="hover:text-accent font-semibold">
-            Dashboard
-        </a>
-        <a href="/admin/manage-hotels" class="hover:text-accent font-semibold">
-            Manage-Hotels
-        </a>
-        @endif
-        @endauth
-    </nav>
-    </div>
-    </header>
+                    {{-- 2. NAVIGATION (Lebar: 2 kolom) --}}
+                    <div class="lg:col-span-2">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-5">Menu</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li><a href="/" class="hover:text-blue-400 transition-colors duration-200">Beranda</a></li>
+                            <li><a href="#hotels" class="hover:text-blue-400 transition-colors duration-200">Cari Hotel</a></li>
+                            <li><a href="{{ route('about') }}" class="hover:text-blue-400 transition-colors duration-200">Tentang Kami</a></li>
+                            <li><a href="{{ route('contact-us') }}" class="hover:text-blue-400 transition-colors duration-200">Hubungi Kami</a></li>
+                        </ul>
+                    </div>
 
-    <main class="min-h-screen">
-        {{ $slot }}
-    </main>
+                    {{-- 3. SUPPORT (Lebar: 2 kolom) --}}
+                    <div class="lg:col-span-2">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-5">Bantuan</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li><a href="{{ route('help-center') }}" class="hover:text-blue-400 transition-colors duration-200">Pusat Bantuan</a></li>
+                            <li><a href="{{ route('privacy-policy') }}" class="hover:text-blue-400 transition-colors duration-200">Kebijakan Privasi</a></li>
+                            <li><a href="{{ route('terms-and-conditions') }}" class="hover:text-blue-400 transition-colors duration-200">Syarat Ketentuan</a></li>
+                        </ul>
+                    </div>
 
-    <footer class="bg-white border-t mt-20">
-        <div class="max-w-7xl mx-auto px-6 py-6 text-sm text-neutral-500 flex justify-between">
-            <span>© {{ date('Y') }} BookingHotel</span>
-            <span>Dibuat dengan Laravel & Tailwind</span>
-        </div>
-    </footer>
+                    {{-- 4. NEWSLETTER (Lebar: 4 kolom) --}}
+                    <div class="lg:col-span-4">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-5">Info Promo</h3>
+                        <form class="flex flex-col gap-3">
+                            <div class="relative">
+                                <input type="email" placeholder="Masukkan email Anda"
+                                    class="w-full bg-slate-800/50 border border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-600">
+                                <button type="button" class="absolute right-1.5 top-1.5 bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded-lg transition-colors shadow-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <p class="text-xs text-slate-600">Kami tidak akan mengirimkan spam.</p>
+                        </form>
+                    </div>
+                </div>
 
-    @livewireScripts
-</body>
+                {{-- Bottom Section: Copyright & Socials --}}
+                <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p class="text-xs text-slate-600">
+                        &copy; {{ date('Y') }} BookingHotel Corp. All rights reserved.
+                    </p>
 
-</html>
+                    <div class="flex items-center gap-5">
+                        <a href="#" class="text-slate-500 hover:text-white transition-colors"><span class="sr-only">Instagram</span>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="text-slate-500 hover:text-white transition-colors"><span class="sr-only">Twitter</span>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script>
+            (function() {
+                const dismissLoader = () => {
+                    const loader = document.getElementById('app-loader');
+                    if (!loader) return;
+                    loader.classList.add('loaded-hidden');
+                    document.body.style.overflow = '';
+                    setTimeout(() => loader.remove(), 700);
+                    try {
+                        sessionStorage.setItem('hasVisited', 'true');
+                    } catch (e) {}
+                };
+
+                document.addEventListener('DOMContentLoaded', () => setTimeout(dismissLoader, 900));
+                document.addEventListener('livewire:navigated', dismissLoader);
+            })();
+        </script>
+
+        @livewireScripts
+    </body>
+
+    </html>

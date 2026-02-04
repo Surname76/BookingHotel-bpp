@@ -28,6 +28,12 @@ class HotelSeeder extends Seeder
             'name' => 'Central Plaza Hotel',
             'district' => 'Balikpapan Tengah',
             'description' => 'Hotel modern di pusat kota dengan akses mudah ke pusat perbelanjaan dan transportasi.',
+            'about_property' => 'Hotel modern di pusat kota dengan akses mudah ke pusat perbelanjaan dan transportasi.',
+            'general_facilities' => [
+                'Wifi Gratis',
+                'Parkir Luas',
+                'Resepsionis 24 Jam',
+            ],
             'image_url' => 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1600&fit=crop',
             'price_per_night' => 350000,
             'is_available' => true,

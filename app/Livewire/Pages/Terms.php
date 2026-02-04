@@ -3,7 +3,9 @@
 namespace App\Livewire\Pages;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class Terms extends Component
 {
     public function render()

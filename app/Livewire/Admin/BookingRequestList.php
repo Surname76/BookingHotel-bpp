@@ -6,10 +6,10 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use App\Models\BookingRequest;
-use App\Models\Booking;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use App\Notifications\NewBookingRequestNotification;
 
+#[Layout('layouts.app')]
 class BookingRequestList extends Component
 {
     use WithPagination;
@@ -21,51 +21,41 @@ class BookingRequestList extends Component
 
     public $search = '';
 
+    public function mount(): void
+    {
+        $user = auth()->user();
+
+        if ($user) {
+            $user->unreadNotifications()
+                ->where('type', NewBookingRequestNotification::class)
+                ->update(['read_at' => now()]);
+        }
+    }
+
     // Reset halaman ke 1 jika user mengetik sesuatu (agar tidak error pagination)
-    public function updatedSearch()
+    public function updatedSearch(): void
     {
         $this->resetPage();
     }
 
-    public function select($id)
+    public function select(int $id): void
     {
-        $this->selectedRequest = BookingRequest::with(['room.hotel'])
+        $this->selectedRequest = BookingRequest::with(['room.hotel', 'latestPayment'])
             ->findOrFail($id);
 
         $this->adminNote = $this->selectedRequest->note;
     }
 
-    public function updateStatus($status)
+    public function updateStatus(string $status): void
     {
-        if (!$this->selectedRequest) {
+        if (! $this->selectedRequest) {
             return;
         }
 
         DB::transaction(function () use ($status) {
-
             if ($status === 'sent') {
-
-                if ($this->selectedRequest->status !== 'sent') {
-
-                    $checkIn  = Carbon::parse($this->selectedRequest->check_in);
-                    $checkOut = Carbon::parse($this->selectedRequest->check_out);
-
-                    $totalNights = $checkIn->diffInDays($checkOut);
-                    $pricePerNight = $this->selectedRequest->room->price_per_night;
-                    $totalPrice = $totalNights * $pricePerNight;
-
-                    Booking::create([
-                        'room_id'         => $this->selectedRequest->room_id,
-                        'guest_name'      => $this->selectedRequest->guest_name,
-                        'guest_email'     => $this->selectedRequest->guest_email,
-                        'guest_phone'     => $this->selectedRequest->guest_phone,
-                        'check_in'        => $checkIn,
-                        'check_out'       => $checkOut,
-                        'price_per_night' => $pricePerNight,
-                        'total_nights'    => $totalNights,
-                        'total_price'     => $totalPrice,
-                        'status'          => 'confirmed',
-                    ]);
+                if ($this->selectedRequest->status === 'confirmed') {
+                    return;
                 }
 
                 $this->selectedRequest->update([
@@ -75,7 +65,14 @@ class BookingRequestList extends Component
             }
 
             if ($status === 'rejected') {
-                $this->selectedRequest->delete();
+                if ($this->selectedRequest->status === 'confirmed') {
+                    return;
+                }
+
+                $this->selectedRequest->update([
+                    'status' => 'rejected',
+                    'note' => $this->adminNote,
+                ]);
             }
         });
 
@@ -84,31 +81,26 @@ class BookingRequestList extends Component
         $this->reset(['selectedRequest', 'adminNote']);
     }
 
-    public function closeModal()
+    public function closeModal(): void
     {
-        // 1. Tutup Modal
         $this->selectedRequest = null;
-
-        // 2. Reset input form (Penting agar catatan tidak tertinggal)
         $this->adminNote = '';
-
-        // 3. Hapus pesan error validasi jika ada
         $this->resetErrorBag();
     }
 
-public function render()
-{
-    // Query dengan Filter Pencarian
-    $requests = BookingRequest::with(['room.hotel'])
-        ->when($this->search, function ($query) {
-            $query->where('guest_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('guest_email', 'like', '%' . $this->search . '%');
-        })
-        ->orderBy('created_at', 'desc')
-        ->paginate(10); // Sesuaikan jumlah per halaman
+    public function render()
+    {
+        $requests = BookingRequest::with(['room.hotel', 'latestPayment'])
+            ->whereNull('cancelled_at')
+            ->when($this->search, function ($query) {
+                $query->where('guest_name', 'like', '%' . $this->search . '%')
+                    ->orWhere('guest_email', 'like', '%' . $this->search . '%');
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-    return view('livewire.admin.booking-request-list', [
-        'requests' => $requests
-    ]);
-}
+        return view('livewire.admin.booking-request-list', [
+            'requests' => $requests,
+        ]);
+    }
 }

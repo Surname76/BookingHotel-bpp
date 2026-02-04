@@ -3,10 +3,11 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use App\Models\Hotel;
-use Illuminate\Validation\Rule;
 use App\Models\Room;
 
+#[Layout('layouts.app')]
 class HotelCrud extends Component
 {
     public $hotels;
@@ -23,6 +24,8 @@ class HotelCrud extends Component
     public $image_url;
     public $price_per_night;
     public $description;
+    public $about_property;
+    public $general_facilities;
     public $is_available = true;
     public $isEdit = false;
     public $selectedHotelId = null;
@@ -56,6 +59,8 @@ class HotelCrud extends Component
             'image_url' => ['nullable', 'url'],
             'price_per_night' => ['required', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
+            'about_property' => ['nullable', 'string'],
+            'general_facilities' => ['nullable', 'string'],
             'is_available' => ['boolean'],
         ];
     }
@@ -102,6 +107,10 @@ class HotelCrud extends Component
         $this->image_url = $hotel->image_url;
         $this->price_per_night = $hotel->price_per_night;
         $this->description = $hotel->description;
+        $this->about_property = $hotel->about_property;
+        $this->general_facilities = !empty($hotel->general_facilities)
+            ? implode("\n", $hotel->general_facilities)
+            : '';
         $this->is_available = $hotel->is_available;
 
         $this->isEdit = true;
@@ -139,6 +148,12 @@ class HotelCrud extends Component
 
     protected function formData(): array
     {
+        $facilities = collect(preg_split("/\r\n|\n|\r/", (string) $this->general_facilities))
+            ->map(fn ($line) => trim((string) $line))
+            ->filter(fn ($line) => $line !== '')
+            ->values()
+            ->all();
+
         return [
             'name' => $this->name,
             'district' => $this->district,
@@ -146,6 +161,8 @@ class HotelCrud extends Component
             'image_url' => $this->image_url,
             'price_per_night' => $this->price_per_night,
             'description' => $this->description,
+            'about_property' => $this->about_property ?: null,
+            'general_facilities' => count($facilities) ? $facilities : null,
             'is_available' => $this->is_available,
         ];
     }
@@ -160,6 +177,8 @@ class HotelCrud extends Component
             'image_url',
             'price_per_night',
             'description',
+            'about_property',
+            'general_facilities',
             'is_available',
             'isEdit',
         ]);

@@ -18,11 +18,14 @@ class Hotel extends Model
         'image_url',
         'price_per_night',
         'description',
+        'about_property',
+        'general_facilities',
         'is_available',
     ];
 
     protected $casts = [
         'is_available' => 'boolean',
+        'general_facilities' => 'array',
     ];
 
     public function bookings()
