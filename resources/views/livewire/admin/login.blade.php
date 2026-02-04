@@ -33,12 +33,8 @@
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
             </div>
-            <h2 class="text-center text-3xl font-extrabold text-slate-900 tracking-tight">
-                Admin Portal
-            </h2>
-            <p class="mt-2 text-center text-sm text-slate-500">
-                Masuk untuk mengelola BookingHotel
-            </p>
+            <h2 class="text-center text-3xl font-extrabold text-slate-900 tracking-tight">Admin Portal</h2>
+            <p class="mt-2 text-center text-sm text-slate-500">Masuk untuk mengelola BookingHotel</p>
         </div>
 
         <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
