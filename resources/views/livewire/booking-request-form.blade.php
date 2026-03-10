@@ -59,19 +59,68 @@
                             {{ $totalNights ? $totalNights.' malam' : '-' }}
                         </span>
                     </div>
+
+                    @if($subtotal > 0)
+                        <div class="pt-3 border-t border-dashed border-slate-300">
+                            <div class="flex justify-between items-center text-sm gap-4">
+                                <span class="text-slate-500 shrink-0">Subtotal</span>
+                                <span class="font-bold text-slate-900">
+                                    Rp {{ number_format($subtotal, 0, ',', '.') }}
+                                </span>
+                            </div>
+                        </div>
+
+                        @if($totalDiscount > 0)
+                            <div class="bg-green-50 -mx-6 px-6 py-3 border-y border-green-100">
+                                <div class="flex justify-between items-center text-sm gap-4">
+                                    <span class="text-green-700 shrink-0 font-semibold">Total Diskon</span>
+                                    <span class="font-bold text-green-600">
+                                        - Rp {{ number_format($totalDiscount, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                                
+                                @if(!empty($appliedDiscountsData))
+                                    <div class="mt-2 space-y-1">
+                                        @foreach($appliedDiscountsData as $discount)
+                                            <div class="flex items-center gap-2 text-xs text-green-700">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                                <span>{{ $discount['name'] }}</span>
+                                                <span class="ml-auto font-semibold">-Rp {{ number_format($discount['amount'], 0, ',', '.') }}</span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+                    @endif
+                    
                     <div class="pt-4 border-t border-dashed border-slate-300 flex justify-between items-center gap-4">
                         <span class="text-sm font-black text-slate-900 uppercase">Total</span>
-                        <span class="text-xl font-black text-blue-600 text-right">
+                        <span class="text-xl font-black {{ $totalDiscount > 0 ? 'text-green-600' : 'text-blue-600' }} text-right">
                             {{ $estimatedAmount ? 'Rp '.number_format((float) $estimatedAmount, 0, ',', '.') : '-' }}
                         </span>
                     </div>
+
+                    @if($totalDiscount > 0)
+                        <div class="pt-2 text-center">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                                </svg>
+                                Hemat Rp {{ number_format($totalDiscount, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    @endif
                 </div>
             </div>
 
             <div class="rounded-2xl border border-slate-200 bg-white p-4">
                 <p class="text-xs font-bold text-slate-900">Info</p>
                 <p class="text-xs text-slate-600 mt-1">
-                    Total di atas adalah estimasi berdasarkan tanggal menginap dan harga per malam.
+                    Total di atas {{ $totalDiscount > 0 ? 'sudah termasuk diskon yang berlaku' : 'adalah estimasi berdasarkan tanggal menginap dan harga per malam' }}.
                 </p>
             </div>
         </div>
@@ -188,6 +237,133 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- PROMO & VOUCHER SECTION --}}
+                    @if($check_in && $check_out)
+                        {{-- Available Discounts --}}
+                        @if($availableDiscounts->count() > 0)
+                            <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                                <h4 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
+                                    </svg>
+                                    Promo Tersedia
+                                </h4>
+                                
+                                <div class="space-y-3">
+                                    @foreach($availableDiscounts as $discount)
+                                        <label class="flex items-start gap-3 p-4 border-2 rounded-2xl cursor-pointer transition-all {{ in_array($discount->id, $selectedDiscounts) ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:border-blue-300 hover:bg-blue-50/30' }}">
+                                            <input type="checkbox" 
+                                                wire:click="toggleDiscount({{ $discount->id }})" 
+                                                {{ in_array($discount->id, $selectedDiscounts) ? 'checked' : '' }}
+                                                class="mt-1 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                                            
+                                            <div class="flex-1">
+                                                <div class="flex items-start justify-between gap-2">
+                                                    <div>
+                                                        <div class="font-bold text-slate-900">{{ $discount->name }}</div>
+                                                        @if($discount->description)
+                                                            <p class="text-xs text-slate-600 mt-1">{{ $discount->description }}</p>
+                                                        @endif
+                                                    </div>
+                                                    <div class="text-right">
+                                                        <div class="text-lg font-black text-blue-600">
+                                                            @if($discount->discount_type === 'percentage')
+                                                                {{ $discount->discount_value }}%
+                                                            @else
+                                                                Rp {{ number_format($discount->discount_value, 0, ',', '.') }}
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="flex flex-wrap gap-2 mt-2">
+                                                    <span class="px-2 py-1 text-[10px] font-bold rounded-full uppercase
+                                                        @if($discount->type === 'room_type') bg-purple-100 text-purple-700
+                                                        @elseif($discount->type === 'extended_stay') bg-blue-100 text-blue-700
+                                                        @elseif($discount->type === 'weekday') bg-green-100 text-green-700
+                                                        @elseif($discount->type === 'seasonal') bg-orange-100 text-orange-700
+                                                        @else bg-pink-100 text-pink-700
+                                                        @endif">
+                                                        {{ str_replace('_', ' ', $discount->type) }}
+                                                    </span>
+                                                    
+                                                    @if($discount->min_nights)
+                                                        <span class="px-2 py-1 text-[10px] font-bold bg-slate-100 text-slate-700 rounded-full uppercase">
+                                                            Min. {{ $discount->min_nights }} malam
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Voucher Code --}}
+                        <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                            <h4 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                                </svg>
+                                Punya Kode Voucher?
+                            </h4>
+
+                            @if($appliedVoucher)
+                                {{-- Applied Voucher --}}
+                                <div class="p-4 bg-green-50 border-2 border-green-200 rounded-2xl">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-10 h-10 rounded-xl bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-bold text-green-900">{{ $appliedVoucher->name }}</div>
+                                                <code class="text-sm text-green-700 font-mono font-bold">{{ $appliedVoucher->code }}</code>
+                                            </div>
+                                        </div>
+                                        <button type="button" wire:click="removeVoucher" class="text-green-600 hover:text-green-800 transition">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            @else
+                                {{-- Voucher Input --}}
+                                <div class="flex gap-2">
+                                    <input type="text" wire:model="voucherCode" 
+                                        placeholder="Masukkan kode voucher"
+                                        class="flex-1 rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 text-sm font-mono uppercase focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none @error('voucherCode') border-red-500 @enderror">
+                                    <button type="button" wire:click="applyVoucher" 
+                                        class="px-6 py-3 bg-slate-900 hover:bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all">
+                                        Terapkan
+                                    </button>
+                                </div>
+                                
+                                @if($voucherError)
+                                    <p class="text-xs text-rose-600 mt-2 flex items-center gap-1 font-bold ml-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        {{ $voucherError }}
+                                    </p>
+                                @endif
+
+                                @if(session()->has('voucher_success'))
+                                    <p class="text-xs text-green-600 mt-2 flex items-center gap-1 font-bold ml-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        {{ session('voucher_success') }}
+                                    </p>
+                                @endif
+                            @endif
+                        </div>
+                    @endif
 
                     <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
                         <h4 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">Permintaan Khusus (opsional)</h4>

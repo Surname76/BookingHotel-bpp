@@ -111,6 +111,8 @@ Route::middleware(['auth', 'admin'])
         Route::get('/dashboard', Dashboard::class)->name('admin.dashboard');
         Route::get('/manage-hotels', HotelCrud::class)->name('admin.manage-hotels');
         Route::get('/booking-requests', BookingRequestList::class)->name('admin.booking-requests');
+        Route::get('/discounts', \App\Livewire\Admin\DiscountCrud::class)->name('admin.discounts');
+        Route::get('/vouchers', \App\Livewire\Admin\VoucherCrud::class)->name('admin.vouchers');
     });
 
 Route::prefix('admin')->group(function (): void {

@@ -22,100 +22,86 @@ class History extends Component
 
     protected $paginationTheme = 'tailwind';
 
-    public function pay(int $bookingRequestId): void
-    {
-        $user = Auth::user();
-        if (! $user) {
-            $this->redirectRoute('login', navigate: true);
-            return;
-        }
+    public ?int $editingRequestId = null;
 
-        $secretKey = (string) config('xendit.secret_key');
-        if ($secretKey === '') {
-            session()->flash('message', 'Payment belum aktif. Silakan hubungi admin.');
-            return;
-        }
+    public string $editGuestName = '';
 
-        $bookingRequest = BookingRequest::query()
-            ->with(['room.hotel'])
-            ->whereKey($bookingRequestId)
-            ->where('user_id', $user->id)
-            ->firstOrFail();
+    public string $editGuestPhone = '';
 
-        if ($bookingRequest->cancelled_at) {
-            session()->flash('message', 'Request ini sudah dibatalkan.');
-            return;
-        }
+    public string $editCheckIn = '';
 
-        if ($bookingRequest->status === 'confirmed') {
-            session()->flash('message', 'Request ini sudah terkonfirmasi.');
-            return;
-        }
+    public string $editCheckInTime = '14:00';
 
-        $room = $bookingRequest->room;
-        $checkIn = Carbon::parse($bookingRequest->check_in);
-        $checkOut = Carbon::parse($bookingRequest->check_out);
-        $totalNights = max(1, $checkIn->diffInDays($checkOut));
+    public string $editCheckOut = '';
 
-        $pricePerNight = (float) $room->price_per_night;
-        $amount = $totalNights * $pricePerNight;
+    public string $editCheckOutTime = '12:00';
 
-        $externalId = 'booking-'.$bookingRequest->id.'-'.Str::ulid()->toBase32();
+    public string $editSpecialRequest = '';
 
-        $payment = Payment::create([
-            'booking_request_id' => $bookingRequest->id,
-            'user_id' => $user->id,
-            'provider' => 'xendit',
-            'external_id' => $externalId,
-            'currency' => 'IDR',
-            'amount' => $amount,
-            'status' => 'pending',
-            'expires_at' => now()->addSeconds((int) config('xendit.invoice.duration_seconds')),
-            'metadata' => [
-                'room_id' => $room->id,
-                'total_nights' => $totalNights,
-                'price_per_night' => $room->price_per_night,
-                'retry' => true,
-            ],
-        ]);
 
-        $successUrl = (string) (config('xendit.redirect.success_url') ?: route('payments.return', ['status' => 'success']));
-        $failureUrl = (string) (config('xendit.redirect.failure_url') ?: route('payments.return', ['status' => 'failure']));
-
-        $payload = [
-            'external_id' => $externalId,
-            'amount' => (int) round($amount),
-            'payer_email' => $bookingRequest->guest_email,
-            'description' => 'Booking '.$bookingRequest->id.' - '.$room->name,
-            'invoice_duration' => (int) config('xendit.invoice.duration_seconds'),
-            'success_redirect_url' => $successUrl,
-            'failure_redirect_url' => $failureUrl,
-        ];
-
-        try {
-            $invoice = app(XenditInvoiceService::class)->createInvoice($payload);
-        } catch (\Throwable $e) {
-            report($e);
-            $payment->update(['status' => 'invoice_failed']);
-            session()->flash('message', 'Invoice gagal dibuat. Silakan coba lagi.');
-            return;
-        }
-
-        $payment->update([
-            'provider_reference' => $invoice['id'] ?? null,
-            'invoice_url' => $invoice['invoice_url'] ?? null,
-            'metadata' => array_merge($payment->metadata ?? [], ['xendit' => $invoice]),
-        ]);
-
-        if (! $payment->invoice_url) {
-            session()->flash('message', 'Invoice belum tersedia.');
-            return;
-        }
-
-        $this->redirect($payment->invoice_url, navigate: false);
+public function pay(int $bookingRequestId): void
+{
+    $user = Auth::user();
+    if (! $user) {
+        $this->redirectRoute('login', navigate: true);
+        return;
     }
 
-    public function cancelRequest(int $bookingRequestId): void
+    $secretKey = (string) config('xendit.secret_key');
+    if ($secretKey === '') {
+        session()->flash('message', 'Payment belum aktif. Silakan hubungi admin.');
+        return;
+    }
+
+    $bookingRequest = BookingRequest::query()
+        ->with(['room.hotel'])
+        ->whereKey($bookingRequestId)
+        ->where('user_id', $user->id)
+        ->firstOrFail();
+
+    if ($bookingRequest->cancelled_at) {
+        session()->flash('message', 'Request ini sudah dibatalkan.');
+        return;
+    }
+}
+
+public function cancelRequest(int $bookingRequestId): void
+{
+    $user = Auth::user();
+    if (! $user) {
+        $this->redirectRoute('login', navigate: true);
+        return;
+    }
+
+    $request = BookingRequest::query()
+        ->whereKey($bookingRequestId)
+        ->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+                ->orWhere(function ($q) use ($user) {
+                    $q->whereNull('user_id')
+                        ->where('guest_email', $user->email);
+                });
+        })
+        ->firstOrFail();
+
+    if ($request->cancelled_at) {
+        session()->flash('message', 'Request ini sudah dibatalkan.');
+        return;
+    }
+
+    if ($request->status !== 'pending') {
+        session()->flash('message', 'Request ini sudah diproses, tidak bisa dibatalkan.');
+        return;
+    }
+
+    $request->update([
+        'cancelled_at' => now(),
+    ]);
+
+    session()->flash('message', 'Booking request berhasil dibatalkan.');
+}
+
+public function startEdit(int $bookingRequestId): void
     {
         $user = Auth::user();
         if (! $user) {
@@ -134,21 +120,106 @@ class History extends Component
             })
             ->firstOrFail();
 
-        if ($request->cancelled_at) {
-            session()->flash('message', 'Request ini sudah dibatalkan.');
+        if ($request->cancelled_at || in_array($request->status, ['confirmed', 'rejected'], true)) {
+            session()->flash('message', 'Request ini sudah diproses, tidak bisa diubah.');
             return;
         }
 
-        if ($request->status !== 'pending') {
-            session()->flash('message', 'Request ini sudah diproses, tidak bisa dibatalkan.');
+        $this->editingRequestId = $request->id;
+        $this->editGuestName = (string) $request->guest_name;
+        $this->editGuestPhone = (string) ($request->guest_phone ?? '');
+        $this->editCheckIn = $request->check_in?->toDateString() ?? '';
+        $this->editCheckInTime = (string) ($request->check_in_time ?? '14:00');
+        $this->editCheckOut = $request->check_out?->toDateString() ?? '';
+        $this->editCheckOutTime = (string) ($request->check_out_time ?? '12:00');
+        $this->editSpecialRequest = (string) ($request->special_request ?? '');
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->resetEditForm();
+    }
+
+    public function saveEdit(): void
+    {
+        $user = Auth::user();
+        if (! $user) {
+            $this->redirectRoute('login', navigate: true);
+            return;
+        }
+
+        if (! $this->editingRequestId) {
+            session()->flash('message', 'Pilih request yang ingin diubah terlebih dahulu.');
+            return;
+        }
+
+        $request = BookingRequest::query()
+            ->whereKey($this->editingRequestId)
+            ->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                    ->orWhere(function ($q) use ($user) {
+                        $q->whereNull('user_id')
+                            ->where('guest_email', $user->email);
+                    });
+            })
+            ->firstOrFail();
+
+        if ($request->cancelled_at || in_array($request->status, ['confirmed', 'rejected'], true)) {
+            $this->resetEditForm();
+            session()->flash('message', 'Request ini sudah diproses, tidak bisa diubah.');
+            return;
+        }
+
+        $validated = $this->validate([
+            'editGuestName' => 'required|string|max:255',
+            'editGuestPhone' => 'nullable|string|max:20',
+            'editCheckIn' => 'required|date',
+            'editCheckOut' => 'required|date|after:editCheckIn',
+            'editCheckInTime' => 'nullable|date_format:H:i',
+            'editCheckOutTime' => 'nullable|date_format:H:i',
+            'editSpecialRequest' => 'nullable|string|max:1000',
+        ]);
+
+        $checkIn = Carbon::parse($validated['editCheckIn']);
+        $checkOut = Carbon::parse($validated['editCheckOut']);
+
+        $overlapExists = Booking::query()
+            ->where('room_id', $request->room_id)
+            ->where('status', 'confirmed')
+            ->whereDate('check_in', '<', $checkOut)
+            ->whereDate('check_out', '>', $checkIn)
+            ->exists();
+
+        if ($overlapExists) {
+            $this->addError('editCheckIn', 'Maaf, tanggal yang dipilih sudah tidak tersedia.');
             return;
         }
 
         $request->update([
-            'cancelled_at' => now(),
+            'guest_name' => $validated['editGuestName'],
+            'guest_phone' => $validated['editGuestPhone'] ?: null,
+            'check_in' => $checkIn->toDateString(),
+            'check_in_time' => $validated['editCheckInTime'] ?: null,
+            'check_out' => $checkOut->toDateString(),
+            'check_out_time' => $validated['editCheckOutTime'] ?: null,
+            'special_request' => $validated['editSpecialRequest'] ?: null,
         ]);
 
-        session()->flash('message', 'Booking request berhasil dibatalkan.');
+        $this->resetEditForm();
+        session()->flash('message', 'Booking request berhasil diperbarui.');
+    }
+
+    private function resetEditForm(): void
+    {
+        $this->resetValidation();
+        $this->editingRequestId = null;
+        $this->editGuestName = '';
+        $this->editGuestPhone = '';
+        $this->editCheckIn = '';
+        $this->editCheckInTime = '14:00';
+        $this->editCheckOut = '';
+        $this->editCheckOutTime = '12:00';
+        $this->editSpecialRequest = '';
     }
 
     public function render()
@@ -183,5 +254,4 @@ class History extends Component
             'bookingRequests' => $bookingRequests,
             'bookings' => $bookings,
         ]);
-    }
-}
+    }}

@@ -168,147 +168,186 @@
             </div>
         </div>
     </div>
-@if ($showHotelModal ?? false)
-    <div class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        {{-- Overlay Backdrop --}}
-        <div wire:transition.opacity.duration.300ms
-            class="fixed inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity"
-            wire:click="closeHotelModal"></div>
+    @if ($showHotelModal ?? false)
+        <div class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            {{-- Overlay Backdrop --}}
+            <div wire:transition.opacity.duration.300ms
+                class="fixed inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity"
+                wire:click="closeHotelModal"></div>
 
-        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-6">
-                
-                {{-- Container Modal: Diubah ke max-w-5xl agar bisa Landscape --}}
-                <div wire:transition.scale.origin.center.duration.300ms
-                    class="relative transform overflow-hidden rounded-[2.5rem] bg-white text-left shadow-2xl transition-all w-full max-w-5xl border border-slate-100">
+            <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-6">
 
-                    {{-- Header --}}
-                    <div class="bg-white px-8 py-6 border-b border-slate-100 flex justify-between items-center">
-                        <div>
-                            <h3 class="text-2xl font-black text-slate-900 tracking-tight">
-                                {{ $isEdit ? 'Edit Data Hotel' : 'Tambah Hotel Baru' }}
-                            </h3>
-                            <p class="text-sm text-slate-500 font-medium">Lengkapi informasi properti untuk manajemen inventaris.</p>
+                    {{-- Container Modal: Diubah ke max-w-5xl agar bisa Landscape --}}
+                    <div wire:transition.scale.origin.center.duration.300ms
+                        class="relative transform overflow-hidden rounded-[2.5rem] bg-white text-left shadow-2xl transition-all w-full max-w-5xl border border-slate-100">
+
+                        {{-- Header --}}
+                        <div class="bg-white px-8 py-6 border-b border-slate-100 flex justify-between items-center">
+                            <div>
+                                <h3 class="text-2xl font-black text-slate-900 tracking-tight">
+                                    {{ $isEdit ? 'Edit Data Hotel' : 'Tambah Hotel Baru' }}
+                                </h3>
+                                <p class="text-sm text-slate-500 font-medium">Lengkapi informasi properti untuk
+                                    manajemen inventaris.</p>
+                            </div>
+                            <button wire:click="closeHotelModal"
+                                class="text-slate-400 hover:text-slate-600 transition-all bg-slate-50 p-2 rounded-full hover:rotate-90">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
                         </div>
-                        <button wire:click="closeHotelModal"
-                            class="text-slate-400 hover:text-slate-600 transition-all bg-slate-50 p-2 rounded-full hover:rotate-90">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
 
-                    <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}">
-                        <div class="p-8">
-                            {{-- Grid Utama Landscape --}}
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                                
-                                {{-- KOLOM KIRI: Identitas Utama --}}
-                                <div class="space-y-6">
-                                    <div>
-                                        <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Nama Hotel Properti</label>
-                                        <input type="text" wire:model.defer="name"
-                                            class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-4 focus:ring-blue-500/10 transition-all placeholder-slate-400"
-                                            placeholder="Contoh: Hotel Grand Wisata">
-                                        @error('name') <span class="text-rose-500 text-[10px] font-bold mt-1 ml-2 block uppercase tracking-wider">{{ $message }}</span> @enderror
-                                    </div>
+                        <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}">
+                            <div class="p-8">
+                                {{-- Grid Utama Landscape --}}
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-                                    <div class="grid grid-cols-2 gap-4">
+                                    {{-- KOLOM KIRI: Identitas Utama --}}
+                                    <div class="space-y-6">
                                         <div>
-                                            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Distrik / Wilayah</label>
-                                            <select wire:model.defer="district"
-                                                class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none">
-                                                <option value="">Pilih Distrik</option>
-                                                @foreach ($districts as $dist)
-                                                    <option value="{{ $dist }}">{{ $dist }}</option>
-                                                @endforeach
-                                            </select>
+                                            <label
+                                                class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Nama
+                                                Hotel Properti</label>
+                                            <input type="text" wire:model.defer="name"
+                                                class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-4 focus:ring-blue-500/10 transition-all placeholder-slate-400"
+                                                placeholder="Contoh: Hotel Grand Wisata">
+                                            @error('name')
+                                                <span
+                                                    class="text-rose-500 text-[10px] font-bold mt-1 ml-2 block uppercase tracking-wider">{{ $message }}</span>
+                                            @enderror
                                         </div>
-                                        <div>
-                                            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Harga / Malam</label>
-                                            <div class="relative">
-                                                <span class="absolute inset-y-0 left-5 flex items-center text-slate-400 font-bold text-xs">Rp</span>
-                                                <input type="number" wire:model.defer="price_per_night"
-                                                    class="w-full pl-12 pr-5 py-4 rounded-2xl border-none bg-slate-50 text-sm font-bold focus:ring-4 focus:ring-blue-500/10 transition-all"
-                                                    placeholder="0">
+
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label
+                                                    class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Distrik
+                                                    / Wilayah</label>
+                                                <select wire:model.defer="district"
+                                                    class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none">
+                                                    <option value="">Pilih Distrik</option>
+                                                    @foreach ($districts as $dist)
+                                                        <option value="{{ $dist }}">{{ $dist }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Harga
+                                                    / Malam</label>
+                                                <div class="relative">
+                                                    <span
+                                                        class="absolute inset-y-0 left-5 flex items-center text-slate-400 font-bold text-xs">Rp</span>
+                                                    <input type="number" wire:model.defer="price_per_night"
+                                                        class="w-full pl-12 pr-5 py-4 rounded-2xl border-none bg-slate-50 text-sm font-bold focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                                        placeholder="0">
+                                                </div>
                                             </div>
                                         </div>
+
+                                        <div>
+                                            <label
+                                                class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Link
+                                                Google Maps (Iframe/URL)</label>
+                                            <input type="url" wire:model.defer="map_link"
+                                                class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                                placeholder="https://maps.google.com/...">
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Thumbnail
+                                                Gambar (URL)</label>
+                                            <input type="text" wire:model.defer="image_url"
+                                                class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                                placeholder="https://images.unsplash.com/...">
+                                        </div>
                                     </div>
 
-                                    <div>
-                                        <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Link Google Maps (Iframe/URL)</label>
-                                        <input type="url" wire:model.defer="map_link"
-                                            class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm focus:ring-4 focus:ring-blue-500/10 transition-all"
-                                            placeholder="https://maps.google.com/...">
-                                    </div>
+                                    {{-- KOLOM KANAN: Deskripsi & Fasilitas --}}
+                                    <div class="space-y-6">
+                                        <div>
+                                            <label
+                                                class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Deskripsi
+                                                Singkat</label>
+                                            <textarea wire:model.defer="description" rows="2"
+                                                class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                                placeholder="Jelaskan fasilitas utama..."></textarea>
+                                        </div>
 
-                                    <div>
-                                        <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Thumbnail Gambar (URL)</label>
-                                        <input type="text" wire:model.defer="image_url"
-                                            class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm focus:ring-4 focus:ring-blue-500/10 transition-all"
-                                            placeholder="https://images.unsplash.com/...">
-                                    </div>
-                                </div>
+                                        <div>
+                                            <label
+                                                class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Tentang
+                                                Properti</label>
+                                            <textarea wire:model.defer="about_property" rows="3"
+                                                class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                                placeholder="Ceritakan sejarah atau keunggulan lokasi..."></textarea>
+                                        </div>
 
-                                {{-- KOLOM KANAN: Deskripsi & Fasilitas --}}
-                                <div class="space-y-6">
-                                    <div>
-                                        <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Deskripsi Singkat</label>
-                                        <textarea wire:model.defer="description" rows="2"
-                                            class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm focus:ring-4 focus:ring-blue-500/10 transition-all"
-                                            placeholder="Jelaskan fasilitas utama..."></textarea>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Tentang Properti</label>
-                                        <textarea wire:model.defer="about_property" rows="3"
-                                            class="w-full rounded-2xl border-none bg-slate-50 px-5 py-4 text-sm focus:ring-4 focus:ring-blue-500/10 transition-all"
-                                            placeholder="Ceritakan sejarah atau keunggulan lokasi..."></textarea>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Fasilitas Umum (1 per baris)</label>
-                                        <textarea wire:model.defer="general_facilities" rows="3"
-                                            class="w-full rounded-2xl border-none bg-slate-100 px-5 py-4 text-sm font-mono focus:ring-4 focus:ring-blue-500/10 transition-all"
-                                            placeholder="Wifi Gratis&#10;Kolam Renang&#10;Parkir Luas"></textarea>
+                                        <div>
+                                            <label
+                                                class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1">Fasilitas
+                                                Umum (1 per baris)</label>
+                                            <textarea wire:model.defer="general_facilities" rows="3"
+                                                class="w-full rounded-2xl border-none bg-slate-100 px-5 py-4 text-sm font-mono focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                                placeholder="Wifi Gratis&#10;Kolam Renang&#10;Parkir Luas"></textarea>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                            {{-- Footer Action --}}
+                            <div class="bg-slate-50 px-8 py-6 flex items-center justify-between">
+                                <label class="flex items-center cursor-pointer group select-none">
+                                    <div class="relative">
+                                        <input type="checkbox" wire:model.live="is_available" class="sr-only"
+                                            id="toggleAvailability">
 
-                        {{-- Footer Action --}}
-                        <div class="bg-slate-50 px-8 py-6 flex items-center justify-between">
-                            <label class="flex items-center cursor-pointer group">
-                                <div class="relative">
-                                    <input type="checkbox" wire:model="is_available" class="sr-only">
-                                    <div class="block bg-slate-200 w-10 h-6 rounded-full group-hover:bg-slate-300 transition-colors"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform {{ $is_available ? 'translate-x-4 bg-blue-600' : '' }}"></div>
+                                        {{-- Track/Background Toggle --}}
+                                        <div
+                                            class="block w-10 h-6 rounded-full transition-colors duration-300 {{ $is_available ? 'bg-blue-600' : 'bg-slate-300' }}">
+                                        </div>
+
+                                        {{-- Dot/Lingkaran --}}
+                                        <div
+                                            class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 shadow-sm {{ $is_available ? 'translate-x-4' : 'translate-x-0' }}">
+                                        </div>
+                                    </div>
+
+                                    <span
+                                        class="ml-3 text-[10px] font-black uppercase tracking-widest transition-colors duration-300 {{ $is_available ? 'text-blue-600' : 'text-slate-500' }}">
+                                        {{ $is_available ? 'Tersedia untuk Dipesan' : 'Tutup Sementara' }}
+                                    </span>
+                                </label>
+
+                                <div class="flex space-x-3">
+                                    <button type="button" wire:click="closeHotelModal"
+                                        class="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-colors">
+                                        Batal
+                                    </button>
+                                    <button type="submit" wire:loading.attr="disabled"
+                                        class="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-blue-600 shadow-lg shadow-slate-200 transition-all active:scale-95 flex items-center gap-2">
+                                        <svg wire:loading class="animate-spin h-3 w-3 text-white" fill="none"
+                                            viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                            </path>
+                                        </svg>
+                                        <span>{{ $isEdit ? 'Update Hotel' : 'Simpan Hotel' }}</span>
+                                    </button>
                                 </div>
-                                <span class="ml-3 text-xs font-black text-slate-600 uppercase tracking-widest">Tersedia untuk Dipesan</span>
-                            </label>
-
-                            <div class="flex space-x-4">
-                                <button type="button" wire:click="closeHotelModal"
-                                    class="px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-colors">
-                                    Batal
-                                </button>
-                                <button type="submit" wire:loading.attr="disabled"
-                                    class="px-8 py-3 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-blue-600 shadow-xl shadow-slate-200 transition-all active:scale-95 flex items-center gap-3">
-                                    <svg wire:loading class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    {{ $isEdit ? 'Update Hotel' : 'Simpan Hotel' }}
-                                </button>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
+
                 </div>
-
             </div>
         </div>
-    </div>
-@endif
+    @endif
 
     @if ($selectedHotelId ?? false)
         <div class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">

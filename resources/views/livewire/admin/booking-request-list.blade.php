@@ -103,7 +103,11 @@
                                             {{ $request->status }}
                                         </span>
 
-                                        @if ($pay = $request->latestPayment)
+                                        @php
+                                            $pay = $request->latestPayment;
+                                        @endphp
+
+                                        @if ($pay)
                                             @php
                                                 $payColors = [
                                                     'pending' => 'bg-slate-100 text-slate-700 border-slate-200',
@@ -112,15 +116,18 @@
                                                     'failed' => 'bg-red-50 text-red-700 border-red-200',
                                                     'paid_conflict' => 'bg-red-50 text-red-700 border-red-200',
                                                 ];
+
                                                 $payClass =
                                                     $payColors[$pay->status] ??
                                                     'bg-slate-100 text-slate-700 border-slate-200';
                                             @endphp
+
                                             <span
                                                 class="px-3 py-1 rounded-full text-xs font-medium border {{ $payClass }} shadow-sm">
                                                 bayar: {{ $pay->status }}
                                             </span>
                                         @endif
+
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-right">

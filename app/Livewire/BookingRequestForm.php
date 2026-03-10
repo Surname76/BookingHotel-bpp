@@ -7,8 +7,12 @@ use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Room;
 use App\Models\User;
+use App\Models\Discount;
+use App\Models\Voucher;
+use App\Models\UserVoucher;
 use App\Notifications\NewBookingRequestNotification;
 use App\Services\Xendit\XenditInvoiceService;
+use App\Services\DiscountService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -27,6 +31,20 @@ class BookingRequestForm extends Component
     public $check_out_time;
     public $special_request;
 
+    // Discount & Voucher
+    public $voucherCode = '';
+    public $appliedVoucher = null;
+    public $voucherError = '';
+    public $selectedDiscounts = [];
+    public $availableDiscounts = [];
+    
+    public $subtotal = 0;
+    public $totalDiscount = 0;
+    public $finalTotal = 0;
+    public $appliedDiscountsData = [];
+
+    protected $listeners = ['discountUpdated' => 'handleDiscountUpdate'];
+
     public function mount(Room $room)
     {
         $this->room = $room;
@@ -38,6 +56,124 @@ class BookingRequestForm extends Component
 
         $this->check_in_time = '14:00';
         $this->check_out_time = '12:00';
+    }
+
+    public function updated($propertyName)
+    {
+        // Recalculate when dates change
+        if (in_array($propertyName, ['check_in', 'check_out'])) {
+            $this->loadAvailableDiscounts();
+            $this->calculateTotal();
+        }
+    }
+
+    public function loadAvailableDiscounts()
+    {
+        if (!$this->check_in || !$this->check_out) {
+            $this->availableDiscounts = collect();
+            return;
+        }
+
+        $discountService = app(DiscountService::class);
+        
+        $this->availableDiscounts = $discountService->getApplicableDiscounts(
+            $this->room->hotel_id,
+            $this->room->id,
+            $this->check_in,
+            $this->check_out,
+            Auth::id()
+        );
+    }
+
+    public function toggleDiscount($discountId)
+    {
+        if (in_array($discountId, $this->selectedDiscounts)) {
+            $this->selectedDiscounts = array_diff($this->selectedDiscounts, [$discountId]);
+        } else {
+            $this->selectedDiscounts[] = $discountId;
+        }
+        
+        $this->calculateTotal();
+    }
+
+    public function applyVoucher()
+    {
+        $this->voucherError = '';
+        
+        if (empty($this->voucherCode)) {
+            $this->voucherError = 'Masukkan kode voucher';
+            return;
+        }
+
+        if (!$this->check_in || !$this->check_out) {
+            $this->voucherError = 'Pilih tanggal check-in dan check-out terlebih dahulu';
+            return;
+        }
+
+        $discountService = app(DiscountService::class);
+        
+        $validation = $discountService->validateVoucher(
+            strtoupper($this->voucherCode),
+            $this->room->hotel_id,
+            $this->room->id,
+            $this->check_in,
+            $this->check_out,
+            Auth::id()
+        );
+
+        if (!$validation['valid']) {
+            $this->voucherError = $validation['message'];
+            return;
+        }
+
+        $this->appliedVoucher = $validation['voucher'];
+        $this->calculateTotal();
+        
+        session()->flash('voucher_success', 'Voucher berhasil diterapkan!');
+    }
+
+    public function removeVoucher()
+    {
+        $this->appliedVoucher = null;
+        $this->voucherCode = '';
+        $this->voucherError = '';
+        $this->calculateTotal();
+    }
+
+    public function calculateTotal()
+    {
+        if (!$this->check_in || !$this->check_out) {
+            $this->subtotal = 0;
+            $this->totalDiscount = 0;
+            $this->finalTotal = 0;
+            $this->appliedDiscountsData = [];
+            return;
+        }
+
+        $discountService = app(DiscountService::class);
+        
+        $result = $discountService->calculateTotal(
+            $this->room->hotel_id,
+            $this->room->id,
+            $this->check_in,
+            $this->check_out,
+            $this->selectedDiscounts,
+            $this->appliedVoucher ? $this->appliedVoucher->code : null,
+            Auth::id()
+        );
+
+        $this->subtotal = $result['subtotal'];
+        $this->totalDiscount = $result['discount_amount'];
+        $this->finalTotal = $result['total'];
+        $this->appliedDiscountsData = $result['applied_discounts'];
+    }
+
+    public function handleDiscountUpdate($data)
+    {
+        $this->subtotal = $data['subtotal'];
+        $this->totalDiscount = $data['discount_amount'];
+        $this->finalTotal = $data['total'];
+        $this->appliedDiscountsData = $data['applied_discounts'];
     }
 
     public function submit()
@@ -71,7 +207,22 @@ class BookingRequestForm extends Component
         $totalNights = max(1, $checkIn->diffInDays($checkOut));
 
         $pricePerNight = (float) $room->price_per_night;
-        $amount = $totalNights * $pricePerNight;
+        $subtotal = $totalNights * $pricePerNight;
+
+        // Calculate final amount with discounts
+        $discountService = app(DiscountService::class);
+        $calculation = $discountService->calculateTotal(
+            $this->room->hotel_id,
+            $this->room->id,
+            $this->check_in,
+            $this->check_out,
+            $this->selectedDiscounts,
+            $this->appliedVoucher ? $this->appliedVoucher->code : null,
+            Auth::id()
+        );
+
+        $amount = $calculation['total'];
+        $discountAmount = $calculation['discount_amount'];
 
         $overlapExists = Booking::query()
             ->where('room_id', $room->id)
@@ -86,6 +237,10 @@ class BookingRequestForm extends Component
         }
 
         $invoiceService = app(XenditInvoiceService::class);
+
+        // Get discount and voucher IDs
+        $discountId = !empty($this->selectedDiscounts) ? $this->selectedDiscounts[0] : null;
+        $voucherId = $this->appliedVoucher ? $this->appliedVoucher->id : null;
 
         $bookingRequest = BookingRequest::create([
             'user_id' => Auth::id(),
@@ -116,17 +271,28 @@ class BookingRequestForm extends Component
                 'room_id' => $room->id,
                 'total_nights' => $totalNights,
                 'price_per_night' => $room->price_per_night,
+                'subtotal' => $subtotal,
+                'discount_amount' => $discountAmount,
+                'discount_id' => $discountId,
+                'voucher_id' => $voucherId,
+                'applied_discounts' => $calculation['applied_discounts'],
             ],
         ]);
 
         $successUrl = (string) (config('xendit.redirect.success_url') ?: route('payments.return', ['status' => 'success']));
         $failureUrl = (string) (config('xendit.redirect.failure_url') ?: route('payments.return', ['status' => 'failure']));
 
+        // Build description with discount info
+        $description = 'Booking '.$bookingRequest->id.' - '.$room->name;
+        if ($discountAmount > 0) {
+            $description .= ' (Diskon: Rp '.number_format($discountAmount, 0, ',', '.').')';
+        }
+
         $payload = [
             'external_id' => $externalId,
             'amount' => (int) round($amount),
             'payer_email' => $this->guest_email,
-            'description' => 'Booking '.$bookingRequest->id.' - '.$room->name,
+            'description' => $description,
             'invoice_duration' => (int) config('xendit.invoice.duration_seconds'),
             'success_redirect_url' => $successUrl,
             'failure_redirect_url' => $failureUrl,
@@ -150,6 +316,15 @@ class BookingRequestForm extends Component
             ]),
         ]);
 
+        // Mark voucher as used (will be recorded in UserVoucher when payment is confirmed)
+        if ($voucherId && Auth::id()) {
+            UserVoucher::create([
+                'user_id' => Auth::id(),
+                'voucher_id' => $voucherId,
+                'used_at' => null, // Will be updated when payment confirmed
+            ]);
+        }
+
         User::query()
             ->where('is_admin', true)
             ->get()
@@ -164,8 +339,6 @@ class BookingRequestForm extends Component
         $this->redirect($payment->invoice_url, navigate: false);
     }
 
-
-
     public function render()
     {
         $totalNights = null;
@@ -178,6 +351,11 @@ class BookingRequestForm extends Component
             if ($checkIn && $checkOut && $checkOut->greaterThan($checkIn)) {
                 $totalNights = max(1, $checkIn->diffInDays($checkOut));
                 $estimatedAmount = $totalNights * (float) $this->room->price_per_night;
+                
+                // Use calculated total if discounts applied
+                if ($this->finalTotal > 0) {
+                    $estimatedAmount = $this->finalTotal;
+                }
             }
         }
 

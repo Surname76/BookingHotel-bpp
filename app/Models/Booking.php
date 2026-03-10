@@ -58,4 +58,14 @@ class Booking extends Model
     {
         return $this->room?->hotel;
     }
+
+    public function discount()
+    {
+        return $this->belongsTo(Discount::class);
+    }
+
+    public function voucher()
+    {
+        return $this->belongsTo(Voucher::class);
+    }
 }

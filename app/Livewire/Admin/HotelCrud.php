@@ -12,6 +12,8 @@ class HotelCrud extends Component
 {
     public $hotels;
 
+    public $is_available = false; // default value
+
     // Modal states
     public $showHotelModal = false;
     public $showRoomModal = false;
@@ -26,7 +28,6 @@ class HotelCrud extends Component
     public $description;
     public $about_property;
     public $general_facilities;
-    public $is_available = true;
     public $isEdit = false;
     public $selectedHotelId = null;
     public $rooms = [];

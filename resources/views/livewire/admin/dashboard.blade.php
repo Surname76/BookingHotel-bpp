@@ -127,6 +127,72 @@
                 </div>
             </a>
 
+            <a href="{{ route('admin.discounts') }}" 
+               class="group relative bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-900/30 transition-all duration-300 ease-in-out hover:-translate-y-1 overflow-hidden">
+                
+                <div class="absolute top-0 right-0 -mr-8 -mt-8 w-24 h-24 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300 blur-xl opacity-50"></div>
+
+                <div class="relative flex items-start justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-900 flex items-center justify-center mb-4 group-hover:bg-blue-900 group-hover:text-white transition-colors duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+
+                        <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-900 transition-colors">
+                            Manage Discounts
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                            Manage discounts for hotel bookings.
+                        </p>
+                    </div>
+
+                    <div class="text-slate-300 group-hover:text-blue-900 group-hover:translate-x-1 transition-all duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ route('admin.vouchers') }}" 
+               class="group relative bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-900/30 transition-all duration-300 ease-in-out hover:-translate-y-1 overflow-hidden">
+                
+                <div class="absolute top-0 right-0 -mr-8 -mt-8 w-24 h-24 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300 blur-xl opacity-50"></div>
+
+                <div class="relative flex items-start justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-900 flex items-center justify-center mb-4 group-hover:bg-blue-900 group-hover:text-white transition-colors duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+
+                        <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-900 transition-colors">
+                            Manage Vouchers
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                            Manage vouchers for hotel bookings.
+                        </p>
+                    </div>
+
+                    <div class="text-slate-300 group-hover:text-blue-900 group-hover:translate-x-1 transition-all duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
             <div class="bg-slate-100 p-6 rounded-2xl border border-dashed border-slate-300 flex items-center justify-center text-slate-400">
                 <span class="text-sm font-medium">Menu akan datang</span>
             </div>
