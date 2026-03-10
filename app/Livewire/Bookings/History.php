@@ -23,23 +23,15 @@ class History extends Component
     protected $paginationTheme = 'tailwind';
 
     public ?int $editingRequestId = null;
-
     public string $editGuestName = '';
-
     public string $editGuestPhone = '';
-
     public string $editCheckIn = '';
-
     public string $editCheckInTime = '14:00';
-
     public string $editCheckOut = '';
-
     public string $editCheckOutTime = '12:00';
-
     public string $editSpecialRequest = '';
 
-
-public function pay(int $bookingRequestId): void
+    public function pay(int $bookingRequestId): void
 {
     $user = Auth::user();
     if (! $user) {

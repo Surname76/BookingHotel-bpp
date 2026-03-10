@@ -81,9 +81,9 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-slate-600 whitespace-nowrap">
-                                    {{ \Carbon\Carbon::parse($request->check_in)->format('d M') }}
+                                    {{ $request->check_in?->format('d M Y') }}{{ $request->check_in_time ? ' ('.$request->check_in_time.')' : '' }}
                                     <span class="text-slate-400 mx-1">→</span>
-                                    {{ \Carbon\Carbon::parse($request->check_out)->format('d M Y') }}
+                                    {{ $request->check_out?->format('d M Y') }}{{ $request->check_out_time ? ' ('.$request->check_out_time.')' : '' }}
                                 </td>
                                 <td class="px-6 py-4">
                                     @php
@@ -229,7 +229,9 @@
                                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                                             </path>
                                         </svg>
-                                        {{ $selectedRequest->check_in }} - {{ $selectedRequest->check_out }}
+                                        {{ $selectedRequest->check_in?->format('Y-m-d') }}{{ $selectedRequest->check_in_time ? ' '.$selectedRequest->check_in_time : '' }}
+                                        -
+                                        {{ $selectedRequest->check_out?->format('Y-m-d') }}{{ $selectedRequest->check_out_time ? ' '.$selectedRequest->check_out_time : '' }}
                                     </div>
                                 </div>
                             </div>
